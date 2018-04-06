@@ -43,3 +43,9 @@ done
 ```
 docker-compose up
 ```
+
+## Test builded image
+
+```
+docker-compose -f docker-compose.test.yaml up
+```

@@ -1,0 +1,9 @@
+version: '3'
+services:
+
+  filewatchtest:
+    image: olegsmetanin/filewatch:latest-alpine3.7
+    volumes:
+      - .:/tmp
+    working_dir: /tmp
+    command: sh ./test.sh

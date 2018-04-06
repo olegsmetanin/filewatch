@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SVC=./test/text.txt
+SVC=./test/test/text.txt
 
 rm $SVC
 

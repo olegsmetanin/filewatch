@@ -2,7 +2,9 @@
 
 SVC=./text.txt
 
-(echo "$(date +"%T"): first change"; echo "first change" > $SVC; sleep 5; echo "$(date +"%T"): last change"; echo "last change" > $SVC) &
+rm $SVC
+
+(echo "$(date +"%T"): create file"; echo "create file" > $SVC; sleep 4; echo "$(date +"%T"): some change"; echo "some change" > $SVC; sleep 4; echo "$(date +"%T"): delete file"; rm $SVC; sleep 4; echo "$(date +"%T"): last change"; echo "last change" > $SVC) &
 
 while true; do
   while [ ! -f $SVC ]; do sleep 1; done

@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -53,6 +54,14 @@ func main() {
 	defer watch.Close()
 
 	files := strings.Split(*fileNames, ",")
+	for i, f := range files {
+		f, err := filepath.Abs(f)
+		if err != nil {
+			log.Fatalf("can't get absolute path for file: %s", f)
+		}
+		files[i] = f
+	}
+
 	if err := addFilesToWatch(files); err != nil {
 		log.Fatal(err)
 	}
@@ -67,21 +76,27 @@ func main() {
 		for {
 			select {
 			case event := <-watch.Events:
-				if event.Op&fsnotify.Chmod != 0 {
-					continue
-				}
-
 				if _, ok := fileMap[event.Name]; ok {
+					if event.Op == fsnotify.Chmod {
+						continue
+					}
 					events <- event
-					addFilesToWatch(files)
 				}
 			case err := <-watch.Errors:
-				log.Fatalf("watch error: %s", err)
+				if err != nil {
+					log.Fatalf("watch error: %s", err)
+				} else {
+					log.Fatalf("unexpected watch error")
+				}
 			}
 		}
 	}()
 
-	<-events
+	event := <-events
+	if *verbose {
+		log.Printf("event: %s, wait for next\n", event)
+	}
+
 	for {
 		select {
 		case event := <-events:

@@ -4,6 +4,6 @@ services:
   filewatchtest:
     image: olegsmetanin/filewatch:latest-alpine3.7
     volumes:
-      - .:/tmp
-    working_dir: /tmp
+      - .:/tmp/filewatch
+    working_dir: /tmp/filewatch
     command: sh ./test.sh

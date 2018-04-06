@@ -2,7 +2,7 @@ version: '3'
 services:
 
   filewatchtest:
-    image: olegsmetanin/filewatch:latest-alpine3.7
+    image: olegsmetanin/filewatch:0.0.1-alpine3.7
     volumes:
       - .:/tmp/filewatch
     working_dir: /tmp/filewatch

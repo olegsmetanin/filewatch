@@ -1,7 +1,7 @@
 # Filewatch utility
 
-## Build
+## Test
 
 ```
-docker build -t olegsmetanin/alpine-filewatch:latest .
+docker-compose up
 ```

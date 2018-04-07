@@ -15,6 +15,9 @@ run()
 sleep 1
 echo "$(date +"%T"): change file"
 echo "change file" > $SVC
+sleep 4
+echo "$(date +"%T"): change file"
+echo "change file" > $SVC
 sleep 6
 echo "$(date +"%T"): delete folder, create and write file"
 rm -rf ./test/test/*
@@ -23,6 +26,13 @@ sleep 6
 echo "$(date +"%T"): delete folder, create and write file"
 rm -rf ./test/test/*
 echo "delete, create and write file" > $SVC
+sleep 6
+echo "$(date +"%T"): delete folder, create and write file"
+rm -rf ./test/*
+sleep 1
+mkdir -p ./test/test
+echo "delete, create and write file" > $SVC
+
 rm $LOCK
 }
 

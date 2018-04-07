@@ -47,7 +47,7 @@ func main() {
 	}
 
 	if *verbose {
-		log.Printf("filewatch version 0.0.2\n")
+		log.Printf("filewatch version 0.0.3\n")
 	}
 
 	var err error

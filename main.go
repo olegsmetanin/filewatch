@@ -1,21 +1,27 @@
 package main
 
 import (
+	"bufio"
+	"context"
 	"flag"
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
+	zglob "github.com/mattn/go-zglob"
 )
 
 var fileNames = flag.String("filenames", "", "files to watch separated by commas")
 var debounceInterval = flag.Int("t", 0, "debounce interval")
 var verbose = flag.Bool("verbose", false, "verbose mode")
+var command = flag.String("command", "", "command to execute")
+var initial = flag.Bool("initial", false, "run command before any change happens")
 
 var watch *fsnotify.Watcher
 
@@ -38,40 +44,34 @@ func addFilesToWatch(files []string) error {
 	return nil
 }
 
-func main() {
-	flag.Parse()
-
-	if *fileNames == "" {
-		flag.PrintDefaults()
-		os.Exit(2)
+func debounceThen(events <- chan fsnotify.Event, cb func()) {
+	event := <-events
+	if *verbose {
+		log.Printf("event: %s, wait for next\n", event)
 	}
 
-	var err error
-	watch, err = fsnotify.NewWatcher()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer watch.Close()
-
-	files := strings.Split(*fileNames, ",")
-	for i, f := range files {
-		f, err := filepath.Abs(f)
-		if err != nil {
-			log.Fatalf("can't get absolute path for file: %s", f)
+	LOOP:
+	for {
+		select {
+		case event := <-events:
+			if *verbose {
+				log.Printf("event: %s, wait for next\n", event)
+			}
+		case <-time.After(time.Duration(*debounceInterval) * time.Second):
+			break LOOP
 		}
-		files[i] = f
 	}
+	cb()
+}
 
-	if err := addFilesToWatch(files); err != nil {
-		log.Fatal(err)
-	}
-
+func watchForChanges(files []string) chan fsnotify.Event {
 	fileMap := make(map[string]struct{})
 	for _, f := range files {
 		fileMap[f] = struct{}{}
 	}
 
 	events := make(chan fsnotify.Event)
+
 	go func() {
 		for {
 			select {
@@ -92,20 +92,90 @@ func main() {
 		}
 	}()
 
-	event := <-events
-	if *verbose {
-		log.Printf("event: %s, wait for next\n", event)
+	return events
+}
+
+func runCommand(ctx context.Context, command string) {
+	cmd := exec.CommandContext(ctx, "sh", "-c", command)
+
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		log.Fatalf("can't get stdout for command: %s %s", command, err)
 	}
 
-	for {
-		select {
-		case event := <-events:
+	if err := cmd.Start(); err != nil {
+		log.Fatalf("can't start command: %s %s", command, err)
+	}
+
+	scanner := bufio.NewScanner(stdout)
+	for scanner.Scan() {
+		log.Printf("%s", scanner.Text())
+	}
+
+	_ = cmd.Wait()
+}
+
+func main() {
+	flag.Parse()
+
+	var err error
+	watch, err = fsnotify.NewWatcher()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer watch.Close()
+
+	files := make([]string, 0)
+
+	parts := strings.Split(*fileNames, ",")
+	for _, part := range parts {
+		matches, err := zglob.Glob(part)
+		if err != nil {
+			log.Fatalf("invalid pattern: %s %s", part, err)
+		}
+		for _, f := range matches {
 			if *verbose {
-				log.Printf("event: %s, wait for next\n", event)
+				log.Printf("watching for: %s", f)
 			}
-		case <-time.After(time.Duration(*debounceInterval) * time.Second):
-			return
+			f, err := filepath.Abs(f)
+			if err != nil {
+				log.Fatalf("can't get absolute path for file: %s", f)
+			}
+			files = append(files, f)
 		}
 	}
 
+	if len(files) == 0 {
+		flag.PrintDefaults()
+		os.Exit(2)
+	}
+
+	if err := addFilesToWatch(files); err != nil {
+		log.Fatal(err)
+	}
+
+	events := watchForChanges(files)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	if *initial {
+		go runCommand(ctx, *command)
+	}
+
+	for {
+		debounceThen(events, func() {
+			if *command == "" {
+				os.Exit(0)
+				return
+			}
+
+			cancel()
+			ctx, cancel = context.WithCancel(context.Background())
+			go runCommand(ctx, *command)
+		})
+	}
+
+
 }
+
+

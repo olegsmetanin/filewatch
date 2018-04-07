@@ -46,6 +46,10 @@ func main() {
 		os.Exit(2)
 	}
 
+	if *verbose {
+		log.Printf("filewatch version 0.0.2\n")
+	}
+
 	var err error
 	watch, err = fsnotify.NewWatcher()
 	if err != nil {

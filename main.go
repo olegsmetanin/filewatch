@@ -103,20 +103,44 @@ func runCommand(ctx context.Context, command string) {
 		log.Fatalf("can't get stdout for command: %s %s", command, err)
 	}
 
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		log.Fatalf("can't get stderr for command: %s %s", command, err)
+	}
+
 	if err := cmd.Start(); err != nil {
 		log.Fatalf("can't start command: %s %s", command, err)
 	}
+
+	go func() {
+		errScanner := bufio.NewScanner(stderr)
+		for errScanner.Scan() {
+			log.Printf("[STDERR] %s", errScanner.Text())
+		}
+	}()
+
 
 	scanner := bufio.NewScanner(stdout)
 	for scanner.Scan() {
 		log.Printf("%s", scanner.Text())
 	}
 
-	_ = cmd.Wait()
+	if err = cmd.Wait(); err != nil {
+		if e, ok := err.(*exec.ExitError); ok {
+			log.Printf("%s", e.ProcessState)
+		} else {
+			log.Printf("can't wait for process: %s %s", command, err)
+		}
+
+	}
 }
 
 func main() {
 	flag.Parse()
+
+	if *verbose {
+		log.Printf("filewatch version 0.0.3\n")
+	}
 
 	var err error
 	watch, err = fsnotify.NewWatcher()

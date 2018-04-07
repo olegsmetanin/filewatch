@@ -44,8 +44,19 @@ done
 docker-compose up
 ```
 
+In separate terminal run
+```
+sh test.sh
+```
+
 ## Test builded image
 
 ```
 docker-compose -f docker-compose.test.yaml up
+```
+
+
+In separate terminal run
+```
+sh test.sh
 ```

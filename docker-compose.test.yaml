@@ -6,4 +6,4 @@ services:
     volumes:
       - .:/tmp/filewatch
     working_dir: /tmp/filewatch
-    command: sh ./test.sh
+    command: sh ./watch.sh

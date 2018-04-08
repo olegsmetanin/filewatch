@@ -1,11 +1,11 @@
 language: go
-
+install: true
+sudo: required
+addons:
+  apt:
+    packages:
+      - upx
+# test stage automatically added for each go version
 go:
-  - 1.10
-
-before_install:
-  - go get github.com/olegsmetanin/filewatch
-
-install:
-  - # skip
+  - 1.10.x
 

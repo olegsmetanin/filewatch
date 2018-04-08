@@ -45,7 +45,7 @@ done
 
 echo "// first comment" > $SVC
 
-filewatch -t 1 --verbose -filenames='test/**/*.txt' --initial --command="cat ./test/test/text.txt" &
+filewatch -t 1 --verbose -filenames='test/**/*.txt' --initial --command='cat ./test/test/text.txt' &
 
 PID=$!
 

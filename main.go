@@ -44,13 +44,13 @@ func addFilesToWatch(files []string) error {
 	return nil
 }
 
-func debounceThen(events <- chan fsnotify.Event, cb func()) {
+func debounceThen(events <-chan fsnotify.Event, cb func()) {
 	event := <-events
 	if *verbose {
 		log.Printf("event: %s, wait for next\n", event)
 	}
 
-	LOOP:
+LOOP:
 	for {
 		select {
 		case event := <-events:
@@ -119,7 +119,6 @@ func runCommand(ctx context.Context, command string) {
 		}
 	}()
 
-
 	scanner := bufio.NewScanner(stdout)
 	for scanner.Scan() {
 		log.Printf("%s", scanner.Text())
@@ -139,7 +138,7 @@ func main() {
 	flag.Parse()
 
 	if *verbose {
-		log.Printf("filewatch version 0.0.3\n")
+		log.Printf("filewatch version 0.0.4\n")
 	}
 
 	var err error
@@ -199,7 +198,4 @@ func main() {
 		})
 	}
 
-
 }
-
-

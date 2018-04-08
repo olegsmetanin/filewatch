@@ -43,4 +43,16 @@ while [ -f $LOCK ]; do
   echo "$(date +"%T"): filewatch finished"
 done
 
+echo "// first comment" > $SVC
+
+filewatch -t 1 --verbose -filenames='test/**/*.txt' --initial --command="cat ./test/test/text.txt" &
+
+PID=$!
+
+sleep 5
+echo "// next comment" >> $SVC
+sleep 5
+
+kill $PID
+
 echo "$(date +"%T"): Test done"

@@ -1,0 +1,11 @@
+version: '3'
+services:
+
+  filewatchtest:
+    build:
+      context: .
+      dockerfile: Dockerfile.binary.build
+    volumes:
+      - .:/tmp/outdist
+    working_dir: /go/src/github.com/olegsmetanin/filewatch
+    command: cp -R /tmp/dist /tmp/outdist

@@ -16,7 +16,7 @@ RUN go build -a -ldflags '-extldflags "-static"' -ldflags "-s -w" -o filewatch .
 
 RUN upx filewatch
 
-RUN tar -cvzf filewatch-0.0.4-linux.tar.gz filewatch
+RUN tar -cvzf filewatch-linux.tar.gz filewatch
 
 
 FROM alpine:3.7
@@ -25,4 +25,4 @@ RUN apk --no-cache add ca-certificates
 
 RUN mkdir -p /tmp/dist
 
-COPY --from=0 /go/src/olegsmetanin/filewatch/filewatch-0.0.4-linux.tar.gz /tmp/dist
+COPY --from=0 /go/src/olegsmetanin/filewatch/filewatch-linux.tar.gz /tmp/dist

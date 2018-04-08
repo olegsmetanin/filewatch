@@ -41,13 +41,13 @@ done
 ## Test
 
 ```
-docker-compose -f docker-compose.test.yaml up --build
+docker-compose -f docker-compose.testlocal.yaml up --build
 ```
 
 ## Build binary
 
 ```
-docker-compose -f docker-compose.build.yaml up --build
+docker-compose -f docker-compose.binary.build.yaml up --build
 ```
 
 Archives are located in /dist folder.

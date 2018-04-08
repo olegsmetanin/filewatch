@@ -41,22 +41,13 @@ done
 ## Test
 
 ```
-docker-compose up
+docker-compose -f docker-compose.test.yaml up --build
 ```
 
-In separate terminal run
-```
-sh test.sh
-```
-
-## Test builded image
+## Build binary
 
 ```
-docker-compose -f docker-compose.test.yaml up
+docker-compose -f docker-compose.build.yaml up --build
 ```
 
-
-In separate terminal run
-```
-sh test.sh
-```
+Archives are located in /dist folder.

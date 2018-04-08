@@ -2,8 +2,10 @@ version: '3'
 services:
 
   filewatchtest:
-    image: olegsmetanin/filewatch:0.0.3-alpine3.7
+    build:
+      context: .
+      dockerfile: Dockerfile.alpine
     volumes:
-      - .:/tmp/filewatch
-    working_dir: /tmp/filewatch
+      - .:/go/src/github.com/olegsmetanin/filewatch
+    working_dir: /go/src/github.com/olegsmetanin/filewatch
     command: sh ./watch.sh

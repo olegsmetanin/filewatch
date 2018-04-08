@@ -4,7 +4,7 @@ go:
   - 1.10
 
 before_install:
-  - go get github.com/olegsmetanin/filewatch.git
+  - go get github.com/olegsmetanin/filewatch
 
 install:
   - # skip
